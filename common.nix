@@ -23,6 +23,13 @@
   # Fix issues with missing X libs because of the minimal profile
   environment.noXlibs = false;
 
+  users.users.builder = {
+    isNormalUser = true;
+    description = "Remote builder";
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHWivy/fWfI1RnUAKLC4azHaydg2EC4JCvvDJs2/d90 tobias@nixos"
+    ];
+  };
 
   # Programs and packages
 

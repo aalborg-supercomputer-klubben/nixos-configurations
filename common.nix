@@ -15,9 +15,6 @@
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap = "dk";
 
-  # Fix issues with missing X libs because of the minimal profile
-  #environment.noXlibs = false;
-
   users.users.builder = {
     isNormalUser = true;
     description = "Remote builder";
@@ -83,11 +80,6 @@
     "nix-command"
     "flakes"
   ];
-
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  #system.copySystemConfiguration = true; does not work with flakes :(
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

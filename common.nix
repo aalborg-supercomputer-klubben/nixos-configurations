@@ -49,6 +49,9 @@
     vim
     wget
     git
+    cacert # Contains certificates of SSL CAs
+    hdparm
+    tmux
   ];
 
   # List services that you want to enable:

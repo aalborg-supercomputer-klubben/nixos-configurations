@@ -3,11 +3,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      <nixpkgs/nixos/modules/profiles/minimal.nix>
-    ];
 
   # Set your time zone.
   time.timeZone = "Europe/Copenhagen";
@@ -19,9 +14,6 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap = "dk";
-
-  # Fix issues with missing X libs because of the minimal profile
-  environment.noXlibs = false;
 
   users.users = let
     ssh-keys = [
@@ -56,6 +48,9 @@
     vim
     wget
     git
+    cacert # Contains certificates of SSL CAs
+    hdparm
+    tmux
   ];
 
   # List services that you want to enable:
@@ -87,10 +82,14 @@
     options = "-d";
   };
 
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  system.copySystemConfiguration = true;
+  virtualisation.vmVariant = {
+    users.users.root.password = "1234";
+  };
+
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
@@ -108,6 +107,6 @@
   # and migrated your data accordingly.
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }

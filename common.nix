@@ -3,11 +3,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      <nixpkgs/nixos/modules/profiles/minimal.nix>
-    ];
 
   # Set your time zone.
   time.timeZone = "Europe/Copenhagen";
@@ -21,7 +16,7 @@
   console.keyMap = "dk";
 
   # Fix issues with missing X libs because of the minimal profile
-  environment.noXlibs = false;
+  #environment.noXlibs = false;
 
   users.users.builder = {
     isNormalUser = true;
@@ -80,10 +75,14 @@
     options = "-d";
   };
 
+  virtualisation.vmVariant = {
+    users.users.root.password = "1234";
+  };
+
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
-  system.copySystemConfiguration = true;
+  #system.copySystemConfiguration = true; does not work with flakes :(
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
@@ -101,6 +100,6 @@
   # and migrated your data accordingly.
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }

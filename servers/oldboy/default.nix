@@ -8,7 +8,8 @@
 {
   imports =
     [ 
-      ../common.nix
+      ../../common.nix
+      ./hardware-configuration.nix
     ];
 
   # Use the GRUB 2 boot loader.

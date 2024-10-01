@@ -27,6 +27,7 @@
     ssh-keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHWivy/fWfI1RnUAKLC4azHaydg2EC4JCvvDJs2/d90 tobias@nixos"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG5Lc6TJ+9DmxiSmUBb08glscp3aL4Xm0v0j2jVlZTUX mast3r@laptop"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOyNgY9a3t7ZWT9MnM3ePe5m+MNIvsoZWo7OqU7JsPqn caspernyvang@gmail.com"
     ];
   {
     asck = {

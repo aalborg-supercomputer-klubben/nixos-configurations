@@ -26,8 +26,8 @@
       };
     };
     packages.${system} = {
-      fastboy-vm = nixosConfigurations.${system}.grundfos-fastboy.config.system.build.vm;
-      oldboy-vm = nixosConfigurations.${system}.grundfos-oldboy.config.system.build.vm;
+      fastboy-vm = nixosConfigurations.grundfos-fastboy.config.system.build.vm;
+      oldboy-vm = nixosConfigurations.grundfos-oldboy.config.system.build.vm;
     };
   };
 }

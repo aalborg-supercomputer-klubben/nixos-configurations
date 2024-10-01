@@ -28,6 +28,7 @@
     description = "Remote builder";
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHWivy/fWfI1RnUAKLC4azHaydg2EC4JCvvDJs2/d90 tobias@nixos"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOyNgY9a3t7ZWT9MnM3ePe5m+MNIvsoZWo7OqU7JsPqn caspernyvang@gmail.com"
     ];
   };
 

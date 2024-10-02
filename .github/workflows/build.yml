@@ -1,0 +1,19 @@
+name: "Build configurations"
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+jobs:
+  tests:
+    strategy:
+      matrix:
+        system: [fastboy, oldboy]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: install nix
+      uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - name: Build system
+      run: nix build .#${{ matrix.system }}-vm

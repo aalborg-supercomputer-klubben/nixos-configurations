@@ -3,6 +3,9 @@
 { config, lib, pkgs, ... }:
 
 {
+  imports = [
+    ./users.nix
+  ];
 
   # Set your time zone.
   time.timeZone = "Europe/Copenhagen";
@@ -14,14 +17,6 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap = "dk";
-
-  users.users.builder = {
-    isNormalUser = true;
-    description = "Remote builder";
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHWivy/fWfI1RnUAKLC4azHaydg2EC4JCvvDJs2/d90 tobias@nixos"
-    ];
-  };
 
   # Programs and packages
 

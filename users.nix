@@ -2,7 +2,7 @@
   users.users = {
     mast3r = {
       isNormalUser = true;
-      description = "https://github.com/Mast3rwaf1z";
+      description = "github.com/Mast3rwaf1z";
       openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG5Lc6TJ+9DmxiSmUBb08glscp3aL4Xm0v0j2jVlZTUX mast3r@laptop"];
     };
     tobias = {

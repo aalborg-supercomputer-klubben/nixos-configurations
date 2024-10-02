@@ -15,5 +15,9 @@
       description = "";
       openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOyNgY9a3t7ZWT9MnM3ePe5m+MNIvsoZWo7OqU7JsPqn caspernyvang@gmail.com"];
     };
+    mads = {
+      isNormalUser = true;
+      description = "";
+    };
   };
 }

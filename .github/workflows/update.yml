@@ -18,3 +18,4 @@ jobs:
         with:
           inputs: nixpkgs
           pr-title: Update systems
+          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}

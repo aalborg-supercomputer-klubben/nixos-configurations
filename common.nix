@@ -4,6 +4,7 @@
 
 {
   imports = [
+    ./options.nix
     ./users.nix
   ];
 
@@ -72,6 +73,8 @@
 
   virtualisation.vmVariant = {
     users.users.root.password = "1234";
+    virtualisation.graphics = false;
+    asck.interface = "eth0";
   };
 
   nix.settings.experimental-features = [

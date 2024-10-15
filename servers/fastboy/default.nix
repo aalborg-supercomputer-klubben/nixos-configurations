@@ -19,6 +19,6 @@
   networking.hostName = "grundfos-fastboy";
 
   networking.useDHCP = false;
-  networking.interfaces.eno1.useDHCP = true;
+  networking.interfaces.${config.asck.interface}.useDHCP = true;
 }
 

@@ -26,5 +26,5 @@
   networking.hostName = "grundfos-oldboy"; # Define your hostname.
 
   networking.useDHCP = false;
-  networking.interfaces.eno1.useDHCP = true;
+  networking.interfaces.${config.asck.interface}.useDHCP = true;
 }

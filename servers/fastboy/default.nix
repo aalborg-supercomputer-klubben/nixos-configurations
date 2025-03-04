@@ -19,6 +19,18 @@
   networking.hostName = "grundfos-fastboy";
 
   networking.useDHCP = false;
-  networking.interfaces.eno1.useDHCP = true;
+  networking.interfaces.eno1.ipv4.addresses = [
+    {
+      address = "172.25.11.215";
+      prefixLength = 24;
+    }
+  ];
+  networking.defaultGateway = {
+    address = "172.25.11.1";
+    interface = "eno1";
+  };
+  networking.nameservers = [
+    "172.18.21.2"
+    "172.18.21.34"
+  ];
 }
-

@@ -2,7 +2,7 @@
   description = "Aalborg supercomputer klub nix flake";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.05";
+    nixpkgs.url = "nixpkgs/nixos-24.11";
   };
 
   outputs = { self, nixpkgs }: let

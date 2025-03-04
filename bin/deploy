@@ -1,0 +1,87 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p fzf rsync nixos-rebuild
+# vi: ft=bash
+set -eo pipefail
+
+GIT_ROOT=`git -C "$(dirname $(realpath $0))" rev-parse --show-toplevel`
+SUBCOMMANDS=("switch" "boot" "test" "build" "dry-activate" "build-vm")
+HOSTS=($(ls "$GIT_ROOT/servers"))
+# Assume that we are called from somewhere inside the git repo.
+
+function print_help {
+    echo "Usage: $(basename "$0") [OPERATION?] [HOST]"
+    echo ""
+    echo "Options:"
+    echo "  OPERATION  (Optional) Specify the NixOS rebuild operation (e.g., switch, boot, test)."
+    echo "             If omitted, 'switch' will be used by default."
+    echo "  HOST       Specify the host to deploy to."
+    echo "  -h, --help Show this help message and exit."
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0") grundfos-fastboy      # Runs 'nixos-rebuild switch' on 'grundfos-fastboy'"
+    echo "  $(basename "$0") test grundfos-oldboy  # Runs 'nixos-rebuild test' on 'grundfos-oldboy'"
+    echo ""
+    echo "If no HOST or OPERATION is provided, an interactive selection will be displayed."
+    exit 0
+}
+# Find all arguments if used.
+TEMP=$(getopt -o h --long help -n "$(basename "$0")" -- "$@")
+eval set -- "$TEMP"
+while true; do
+    case "$1" in
+        -h | --help)
+            print_help
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Internal parse error: Invalid option."
+            exit 1
+            ;;
+    esac
+done
+
+# Parsing
+if [[ -n "$2" ]]; then
+    HOST="$2"
+    OPERATION="$1"
+elif [[ -n "$1" ]]; then
+    HOST="$1"
+    OPERATION="switch"
+else
+    HOST=$(printf "%s\n" "${HOSTS[@]}" | fzf --prompt="Select a host: ")
+    OPERATION="switch"
+fi
+
+# Validation
+if [[ ! " ${HOSTS[@]} " =~ " ${HOST} " ]]; then
+    echo "Error: Unknown host '$HOST'. Valid hosts are: ${HOSTS[@]}"
+    exit 1
+fi
+if [[ ! " ${SUBCOMMANDS[@]} " =~ " ${OPERATION} " ]]; then
+    echo "Error: Unknown sub-command '$OPERATION'. Valid sub-commands are: ${SUBCOMMANDS[@]}"
+    exit 1
+fi
+
+# Run deployment
+nixos-rebuild $OPERATION \
+    --fast \
+    --use-remote-sudo \
+    --build-host "$HOST" \
+    --target-host "$HOST" \
+    --flake ".#$HOST"
+
+# Sucessful deployment, copy over new flake configuration to host.
+echo "rebuild successful, copying new configuration to $HOST:/etc/nixos/"
+rsync \
+  -avz \
+  --quiet \
+  --delete \
+  --files-from=<(git -C "$GIT_ROOT" ls-files) \
+  --rsync-path="sudo rsync" \
+  --chown="root:root" \
+  "$GIT_ROOT/" \
+  "$HOST:/etc/nixos/"

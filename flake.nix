@@ -13,14 +13,14 @@
       grundfos-fastboy = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./servers/fastboy
+          ./servers/grundfos-fastboy
           ./common.nix
         ];
       };
       grundfos-oldboy = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./servers/oldboy
+          ./servers/grundfos-oldboy
           ./common.nix
         ];
       };

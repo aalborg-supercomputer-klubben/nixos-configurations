@@ -3,10 +3,10 @@
 # vi: ft=bash
 set -eo pipefail
 
+GIT_ROOT=`git -C "$(dirname $(realpath $0))" rev-parse --show-toplevel`
 SUBCOMMANDS=("switch" "boot" "test" "build" "dry-activate" "build-vm")
-HOSTS=("grundfos-fastboy" "grundfos-oldboy")
+HOSTS=($(ls "$GIT_ROOT/servers"))
 # Assume that we are called from somewhere inside the git repo.
-GIT_ROOT=`git rev-parse --show-toplevel`
 
 function print_help {
     echo "Usage: $(basename "$0") [OPERATION?] [HOST]"

@@ -8,7 +8,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        system: [fastboy, oldboy]
+        system: [montoya, normark]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

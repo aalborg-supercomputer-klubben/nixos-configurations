@@ -1,4 +1,4 @@
-# Configuration file for the grundfos-oldboy server
+# Configuration file for the server
 # Specs:
 # 24 cores
 # 32 GB ram
@@ -23,7 +23,7 @@
   # disable mitigations (performance increase)
   boot.kernelParams = [ "mitigations=off" ];
 
-  networking.hostName = "grundfos-oldboy"; # Define your hostname.
+  networking.hostName = "normark"; # Define your hostname.
 
   networking.useDHCP = false;
   networking.interfaces.eno1.ipv4.addresses = [

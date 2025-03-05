@@ -55,6 +55,9 @@
   # Trim ssds weekly
   services.fstrim.enable = true;
 
+  # Enable BOINC lets use some power :)
+  services.boinc.enable = true;
+
   # Upgrade the system automatically
   # system.autoUpgrade = {
   #   enable = true;

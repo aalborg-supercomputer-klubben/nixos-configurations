@@ -10,24 +10,24 @@
     pkgs = import nixpkgs {inherit system;};
   in rec {
     nixosConfigurations = {
-      grundfos-fastboy = nixpkgs.lib.nixosSystem {
+      montoya = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./servers/grundfos-fastboy
+          ./servers/montoya
           ./common.nix
         ];
       };
-      grundfos-oldboy = nixpkgs.lib.nixosSystem {
+      normark = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./servers/grundfos-oldboy
+          ./servers/normark
           ./common.nix
         ];
       };
     };
     packages.${system} = {
-      fastboy-vm = nixosConfigurations.grundfos-fastboy.config.system.build.vm;
-      oldboy-vm = nixosConfigurations.grundfos-oldboy.config.system.build.vm;
+      montoya-vm = nixosConfigurations.montoya.config.system.build.vm;
+      normark-vm = nixosConfigurations.normark.config.system.build.vm;
     };
   };
 }

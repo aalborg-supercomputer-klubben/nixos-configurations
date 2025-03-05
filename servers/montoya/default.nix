@@ -1,4 +1,4 @@
-# Configuration file for the grundfos-fastboy server
+# Configuration file for the server
 # Specs:
 # 32 cores
 # 128 GB ram
@@ -16,7 +16,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "grundfos-fastboy";
+  networking.hostName = "montoya";
 
   networking.useDHCP = false;
   networking.interfaces.eno1.ipv4.addresses = [

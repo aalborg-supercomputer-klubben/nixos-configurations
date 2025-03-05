@@ -2,12 +2,12 @@
 
 Set up `.ssh/config`:
 ```sshconfig
-Host grundfos-fastboy
+Host montoya 
   User username
   HostName 172.25.11.215
   IdentityFile ~/.ssh/id_ed25519
 
-Host grundfos-oldboy
+Host normark
   User username
   HostName 172.25.11.216
   IdentityFile ~/.ssh/id_ed25519

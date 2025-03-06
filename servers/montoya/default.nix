@@ -1,8 +1,3 @@
-# Configuration file for the server
-# Specs:
-# 32 cores
-# 128 GB ram
-
 { config, lib, pkgs, ... }:
 
 {

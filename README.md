@@ -22,7 +22,7 @@ A records configured under `aalborg.supercomputer.club`.
 |---------------|----------|------------|
 | 172.25.11.215 | montoya  | ✅         |
 | 172.25.11.216 | normark  | ✅         |
-| 172.25.11.217 | huttel   | ❌         |
+| 172.25.11.217 | huttel   | ✅         |
 | 172.25.11.218 | bacci    | ❌         |
 | 172.25.11.219 | albano   | ❌         |
 | 172.25.11.220 | aaen     | ❌         |

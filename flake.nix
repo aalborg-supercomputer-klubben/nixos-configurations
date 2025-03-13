@@ -24,10 +24,18 @@
           ./common.nix
         ];
       };
+      huttel = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./servers/huttel
+          ./common.nix
+        ];
+      };
     };
     packages.${system} = {
       montoya-vm = nixosConfigurations.montoya.config.system.build.vm;
       normark-vm = nixosConfigurations.normark.config.system.build.vm;
+      huttel-vm = nixosConfigurations.normark.config.system.build.vm;
     };
   };
 }

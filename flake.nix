@@ -31,6 +31,13 @@
           ./common.nix
         ];
       };
+      sbcc-router = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        modules = [
+          ./servers/sbcc-router
+          ./common.nix
+        ];
+      };
     };
     packages.${system} = {
       montoya-vm = nixosConfigurations.montoya.config.system.build.vm;

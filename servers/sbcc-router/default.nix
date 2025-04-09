@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
     ./router.nix
@@ -20,6 +20,18 @@
       prefixLength = 8;
     }
   ];
+
+  services.tailscale.enable = true;
+  # https://tailscale.com/kb/1320/performance-best-practices#linux-optimizations-for-subnet-routers-and-exit-nodes
+  services.networkd-dispatcher = {
+    enable = true;
+    rules."50-tailscale" = {
+      onState = ["routable"];
+      script = ''
+        ${lib.getExe pkgs.ethtool} -K eth0 rx-udp-gro-forwarding on rx-gro-list off
+      '';
+    };
+  };
 
   hardware.enableRedistributableFirmware = true;
 

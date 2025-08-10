@@ -26,3 +26,15 @@ A records configured under `aalborg.supercomputer.club`.
 | 172.25.11.218 | bacci    | ❌         |
 | 172.25.11.219 | albano   | ❌         |
 | 172.25.11.220 | aaen     | ❌         |
+
+## AAU VPN
+To access the servers outside of the campus network.
+
+*Requires MFA to be enabled and updated on your AAU account.*
+
+| Setting      | Value                           |
+|--------------|---------------------------------|
+| VPN Protocol | Cisco AnyConnect or OpenConnect |
+| Gateway      | `ssl-vpn1.aau.dk`               |
+| User Agent   | `AnyConnect`                    |
+| Token Mode   | `Disabled`                      |

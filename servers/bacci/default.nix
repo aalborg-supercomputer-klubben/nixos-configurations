@@ -1,6 +1,7 @@
 {...}: {
   imports = [
     ./hardware-configuration.nix
+    ./zfs.nix
   ];
 
   # Use the systemd-boot EFI boot loader.

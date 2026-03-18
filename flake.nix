@@ -10,6 +10,13 @@
     pkgs = import nixpkgs {inherit system;};
   in rec {
     nixosConfigurations = {
+      bacci = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./servers/bacci
+          ./common.nix
+        ];
+      };
       montoya = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [

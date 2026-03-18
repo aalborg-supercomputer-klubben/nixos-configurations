@@ -1,17 +1,23 @@
 # nixos-configurations
 
 Set up `.ssh/config`:
+
 ```sshconfig
 Host montoya normark huttel bacci albano aaen
-  CanonicalDomains aalborg.supercomputer.club
   User username
   IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  CanonicalDomains aalborg.supercomputer.club
+  CanonicalizeHostname yes
+  CanonicalizeMaxDots 0
 ```
 
 To deploy new configurations, use the interactive deploy script:
+
 ```bash
 ./bin/deploy ...
 ```
+
 For more options, check `./bin/deploy --help`.
 
 ## Configured hostnames
@@ -28,6 +34,7 @@ A records configured under `aalborg.supercomputer.club`.
 | 172.25.11.220 | aaen     | ❌         |
 
 ## AAU VPN
+
 To access the servers outside of the campus network.
 
 *Requires MFA to be enabled and updated on your AAU account.*

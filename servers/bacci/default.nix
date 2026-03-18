@@ -10,7 +10,21 @@
 
   networking.hostName = "bacci";
 
-  networking.useDHCP = true;
+  networking.useDHCP = false;
+  networking.interfaces.eno1.ipv4.addresses = [
+    {
+      address = "172.25.11.218";
+      prefixLength = 24;
+    }
+  ];
+  networking.defaultGateway = {
+    address = "172.25.11.1";
+    interface = "eno1";
+  };
+  networking.nameservers = [
+    "172.18.21.2"
+    "172.18.21.34"
+  ];
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
@@ -30,3 +44,4 @@
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.05"; # Did you read the comment?
 }
+

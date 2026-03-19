@@ -1,8 +1,10 @@
 # Common configuration for all nixos machines
-
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   imports = [
     ./users.nix
   ];
@@ -74,12 +76,12 @@
     options = "-d";
   };
 
-  virtualisation.vmVariant = {
-    users.users.root.password = "1234";
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    extra-substituters = ["https://aalborg-supercomputer-klubben.cachix.org"];
+    extra-trusted-public-keys = ["aalborg-supercomputer-klubben.cachix.org-1:4n8Usz0B/8hepttQS03DxknN+nP0ab48nhsx/CEVaz0="];
   };
-
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
 }

@@ -6,9 +6,13 @@
   };
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.11";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     sops-nix = {
       url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    hercules-ci-effects = {
+      url = "github:hercules-ci/hercules-ci-effects";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -17,6 +21,7 @@
     self,
     nixpkgs,
     sops-nix,
+    hercules-ci-effects,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {inherit system;};
@@ -118,6 +123,7 @@
         ssh-to-age -i "''${SSH_KEY}.pub"
       '';
     };
+    runCachixDeploy = hercules-ci-effects.lib.runCachixDeploy;
   in rec {
     nixosConfigurations = {
       bacci = nixpkgs.lib.nixosSystem {
@@ -125,6 +131,8 @@
         modules =
           commonModules
           ++ [
+            ./common/hercules-ci.nix
+            ./common/cachix-deploy-agent.nix
             ./servers/bacci
           ];
       };
@@ -133,6 +141,8 @@
         modules =
           commonModules
           ++ [
+            ./common/hercules-ci.nix
+            ./common/cachix-deploy-agent.nix
             ./servers/montoya
           ];
       };
@@ -141,6 +151,8 @@
         modules =
           commonModules
           ++ [
+            ./common/hercules-ci.nix
+            ./common/cachix-deploy-agent.nix
             ./servers/normark
           ];
       };
@@ -149,6 +161,8 @@
         modules =
           commonModules
           ++ [
+            ./common/hercules-ci.nix
+            ./common/cachix-deploy-agent.nix
             ./servers/huttel
           ];
       };
@@ -162,10 +176,6 @@
       };
     };
     packages.${system} = {
-      bacci-vm = nixosConfigurations.bacci.config.system.build.vm;
-      montoya-vm = nixosConfigurations.montoya.config.system.build.vm;
-      normark-vm = nixosConfigurations.normark.config.system.build.vm;
-      huttel-vm = nixosConfigurations.normark.config.system.build.vm;
       inherit sops-gen-config sops-first-run;
     };
     apps.${system} = {
@@ -176,6 +186,15 @@
       sops-first-run = {
         type = "app";
         program = "${sops-first-run}/bin/sops-first-run";
+      };
+    };
+    herculesCI.onPush.default.outputs.effects.cachix-deploy = runCachixDeploy {
+      async = true;
+      deploy.agents = {
+        bacci = nixosConfigurations.bacci.config.system.build.toplevel;
+        montoya = nixosConfigurations.montoya.config.system.build.toplevel;
+        normark = nixosConfigurations.normark.config.system.build.toplevel;
+        huttel = nixosConfigurations.huttel.config.system.build.toplevel;
       };
     };
   };

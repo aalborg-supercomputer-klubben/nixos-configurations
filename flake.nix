@@ -5,7 +5,10 @@
     nixpkgs.url = "nixpkgs/nixos-24.11";
   };
 
-  outputs = { self, nixpkgs }: let
+  outputs = {
+    self,
+    nixpkgs,
+  }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {inherit system;};
   in rec {
@@ -47,6 +50,7 @@
       };
     };
     packages.${system} = {
+      bacci-vm = nixosConfigurations.bacci.config.system.build.vm;
       montoya-vm = nixosConfigurations.montoya.config.system.build.vm;
       normark-vm = nixosConfigurations.normark.config.system.build.vm;
       huttel-vm = nixosConfigurations.normark.config.system.build.vm;

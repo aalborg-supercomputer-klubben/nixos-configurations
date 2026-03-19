@@ -123,7 +123,8 @@
         ssh-to-age -i "''${SSH_KEY}.pub"
       '';
     };
-    runCachixDeploy = hercules-ci-effects.lib.runCachixDeploy;
+    hci-effects = hercules-ci-effects.lib.withPkgs pkgs;
+    runCachixDeploy = hci-effects.runCachixDeploy;
   in rec {
     nixosConfigurations = {
       bacci = nixpkgs.lib.nixosSystem {

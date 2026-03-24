@@ -190,7 +190,7 @@
       };
     };
     herculesCI.onPush.default.outputs.effects.cachix-deploy = runCachixDeploy {
-      async = true;
+      async = false;
       deploy.agents = {
         bacci = nixosConfigurations.bacci.config.system.build.toplevel;
         montoya = nixosConfigurations.montoya.config.system.build.toplevel;

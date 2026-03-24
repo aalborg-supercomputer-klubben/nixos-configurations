@@ -1,5 +1,8 @@
 # nixos-configurations
 
+[![Hercules CI](https://hercules-ci.com/api/v1/site/github/account/aalborg-supercomputer-klubben/project/nixos-configurations/badge)](https://hercules-ci.com/github/aalborg-supercomputer-klubben/nixos-configurations/status)
+[![Cachix Deploy](https://img.shields.io/badge/cachix--deploy-aalborg--supercomputer--klubben-blue.svg)](https://app.cachix.org/organization/aalborg-supercomputer-klubben/deploy/workspace/aalborg-supercomputer-klubben)
+
 Set up `.ssh/config`:
 
 ```sshconfig

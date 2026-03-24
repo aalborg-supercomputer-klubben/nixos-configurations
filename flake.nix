@@ -167,14 +167,6 @@
             ./servers/huttel
           ];
       };
-      sbcc-router = nixpkgs.lib.nixosSystem {
-        system = "aarch64-linux";
-        modules =
-          commonModules
-          ++ [
-            ./servers/sbcc-router
-          ];
-      };
     };
     packages.${system} = {
       inherit sops-gen-config sops-first-run;

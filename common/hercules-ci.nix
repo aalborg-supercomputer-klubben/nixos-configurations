@@ -31,8 +31,8 @@
       "default-cachix-activate" = {
         kind = "Secret";
         condition.and = [
-          {is_owner = "aalborg-supercomputer-klubben";}
-          {is_repo = "nixos-configurations";}
+          {isOwner = "aalborg-supercomputer-klubben";}
+          {isRepo = "nixos-configurations";}
           "isDefaultBranch"
         ];
         data.cachixActivateToken = config.sops.placeholder."hercules-ci/cachix-activate-token";

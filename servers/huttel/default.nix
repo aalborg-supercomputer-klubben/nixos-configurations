@@ -10,7 +10,7 @@
   networking.hostName = "huttel";
 
   networking.useDHCP = false;
-  networking.interfaces.eno1.ipv4.addresses = [
+  networking.interfaces.eno1np0.ipv4.addresses = [
     {
       address = "172.25.11.217";
       prefixLength = 24;

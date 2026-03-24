@@ -30,9 +30,12 @@
     content = builtins.toJSON {
       "default-cachix-activate" = {
         kind = "Secret";
-        data = {
-          cachixActivateToken = config.sops.placeholder."hercules-ci/cachix-activate-token";
-        };
+        condition.and = [
+          {is_owner = "aalborg-supercomputer-klubben";}
+          {is_repo = "nixos-configurations";}
+          "isDefaultBranch"
+        ];
+        data.cachixActivateToken = config.sops.placeholder."hercules-ci/cachix-activate-token";
       };
     };
   };

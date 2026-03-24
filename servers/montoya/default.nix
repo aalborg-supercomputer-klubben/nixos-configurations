@@ -18,7 +18,7 @@
   ];
   networking.defaultGateway = {
     address = "172.25.11.1";
-    interface = "eno1";
+    interface = "eno1np0";
   };
   networking.nameservers = [
     "172.18.21.2"

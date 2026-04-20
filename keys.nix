@@ -8,6 +8,7 @@
     alex = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILlUu5YydtsInNxcObVyM+8i2He160llmvJ/QE+z4sV7 alex@cachyos-x8664"];
     brian = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBS9jxNPsm1BDkUEiVgfzaziFAMLGNcUeesDuqwhMppf brianellingsgaard9@gmail.com"];
     tea = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKsCG/PjvMDMqlsb6o48u9/2qUhlbqiJ81ytuMtsJ1fL tea@h011089.wifi.general.client.rdns.aau.dk"];
+    deekahy = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz9NR4FapCSiXxTqLiGKXfHlcy189XAiIOnGYbSG/B8TBSxyV5FzHWjKCxZLDXcoBnXljsxtu1EmGtvQP3/AwOMbt95UCTLLt1gP8Uwgzilt8Bv3P2LxAZXGQRppU3GhmScaea1CXX0kwnIvtk8QzUzVPDW7eze/R+/Alkw1rXOV7ywV1cOcOEBsDFCJy2IlDA2siKQkO5+24XoCYOGwQhMzQAiqd87xPJAsGRVP6id9O1BBf4iojdtQcRj9fqnJUera825fufAfEZTHjg3q4f8QSd564JzG6LWHRyDSAtycioWaDBlvF9omaWSSrmRqABrZENPB3zhn/GykeCEA8b"];
   };
 
   # Server host ed25519 public keys.

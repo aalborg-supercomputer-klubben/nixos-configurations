@@ -181,17 +181,13 @@
         program = "${sops-first-run}/bin/sops-first-run";
       };
     };
-    herculesCI = {config, ...}: {
-      onPush.default.outputs.effects = nixpkgs.lib.optionalAttrs (config.repo.branch == "master") {
-        cachix-deploy = runCachixDeploy {
-          async = false;
-          deploy.agents = {
-            bacci = nixosConfigurations.bacci.config.system.build.toplevel;
-            montoya = nixosConfigurations.montoya.config.system.build.toplevel;
-            normark = nixosConfigurations.normark.config.system.build.toplevel;
-            huttel = nixosConfigurations.huttel.config.system.build.toplevel;
-          };
-        };
+    herculesCI.onPush.default.outputs.effects.cachix-deploy = runCachixDeploy {
+      async = false;
+      deploy.agents = {
+        bacci = nixosConfigurations.bacci.config.system.build.toplevel;
+        montoya = nixosConfigurations.montoya.config.system.build.toplevel;
+        normark = nixosConfigurations.normark.config.system.build.toplevel;
+        huttel = nixosConfigurations.huttel.config.system.build.toplevel;
       };
     };
   };

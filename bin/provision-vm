@@ -1,0 +1,248 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p bash openssl cloud-utils openssh util-linux
+# vi: ft=bash
+# Provision an Ubuntu 24.04 cloud-init VM on a remote libvirt host (br0).
+#
+# Usage: provision-vm <host> <name> <ip-with-cidr> [mac]
+#   provision-vm bacci vm1 172.25.11.50/24
+#   provision-vm bacci vm2 172.25.11.51/24 52:54:00:aa:bb:cc
+#
+# <host> is an ssh target; the invoking user must be in its libvirtd group.
+#
+# Successful provisions are appended as CSV to $LOG_FILE (default:
+# ./provision-vm.csv in the caller's cwd), with a header written on first use.
+
+set -euo pipefail
+
+SSH_HOST="${1:?ssh host required, e.g. bacci}"
+NAME="${2:?name required}"
+IP_CIDR="${3:?ip/cidr required, e.g. 172.25.11.50/24}"
+MAC="${4:-$(printf '52:54:00:%02x:%02x:%02x' $((RANDOM % 256)) $((RANDOM % 256)) $((RANDOM % 256)))}"
+
+# Derive gateway as the .1 of the IP's own /24 (override with GATEWAY env).
+GATEWAY="${GATEWAY:-${IP_CIDR%.*/*}.1}"
+DNS_SERVERS=("172.18.21.2" "172.18.21.34")
+BRIDGE_NET="br0"
+VM_USER="${VM_USER:-ubuntu}"
+
+IMAGES_DIR="/var/lib/libvirt/images"
+BASE_IMG="${BASE_IMG:-$IMAGES_DIR/noble-server-cloudimg-amd64.img}"
+BASE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+
+DISK_SIZE="${DISK_SIZE:-20G}"
+MEMORY_MIB="${MEMORY_MIB:-4096}"
+VCPUS="${VCPUS:-2}"
+
+LOG_FILE="${LOG_FILE:-$PWD/provision-vm.csv}"
+
+VM_DIR="$IMAGES_DIR/$NAME"
+DISK="$VM_DIR/disk.qcow2"
+SEED="$VM_DIR/seed.iso"
+
+if [ -t 2 ] && [ -z "${NO_COLOR:-}" ]; then
+  C_ARROW=$'\033[1;34m'; C_MSG=$'\033[1m'; C_DIM=$'\033[2m'; C_RESET=$'\033[0m'
+else
+  C_ARROW=''; C_MSG=''; C_DIM=''; C_RESET=''
+fi
+log() {
+  printf '%s[%s]%s %s==>%s %s%s%s\n' \
+    "$C_DIM" "$(date +%H:%M:%S)" "$C_RESET" \
+    "$C_ARROW" "$C_RESET" \
+    "$C_MSG" "$*" "$C_RESET" >&2
+}
+# Drop blank lines and indent subcommand output so it groups visually under
+# the preceding `==>` step (virsh is chatty and adds trailing blanks).
+indent() { sed -e '/^[[:space:]]*$/d' -e 's/^/    /'; }
+remote_sudo() { ssh "$SSH_HOST" sudo "$@" 2>&1 | indent; }
+# Upload a local file to a root-owned remote path. scp can't sudo, so we
+# scp to a tmp location and install(1) it into place (which also sets mode).
+#   remote_put <local> <remote> <mode>   e.g. remote_put seed.iso /path 0600
+remote_put() {
+  local src="$1" dst="$2" mode="$3" tmp
+  tmp="$(ssh "$SSH_HOST" mktemp)"
+  scp -q "$src" "$SSH_HOST:$tmp"
+  ssh "$SSH_HOST" sudo install -m "$mode" "$tmp" "$dst"
+  ssh "$SSH_HOST" rm -f "$tmp"
+}
+
+log "provisioning '$NAME' on $SSH_HOST ($IP_CIDR, mac $MAC)"
+
+log "checking domain does not already exist on $SSH_HOST"
+if remote_sudo virsh dominfo "$NAME" >/dev/null 2>&1; then
+  echo "domain '$NAME' already exists on $SSH_HOST" >&2
+  exit 1
+fi
+
+CIDIR="$(mktemp -d)"
+trap 'rm -rf "$CIDIR"' EXIT
+
+log "generating cloud-init + libvirt artifacts in $CIDIR"
+
+# 10 alphanumeric chars (~59 bits entropy). Pipe is safe: openssl emits a
+# finite chunk so tr/cut never SIGPIPE-kill each other under `pipefail`.
+while true; do
+  PASSWORD="$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | cut -c1-10)"
+  [[ "$PASSWORD" =~ [A-Z] ]] && \
+  [[ "$PASSWORD" =~ [a-z] ]] && \
+  [[ "$PASSWORD" =~ [0-9] ]] && break
+done
+PWHASH="$(openssl passwd -6 "$PASSWORD")"
+
+cat >"$CIDIR/meta-data" <<EOF
+instance-id: $NAME
+local-hostname: $NAME
+EOF
+
+cat >"$CIDIR/user-data" <<EOF
+#cloud-config
+hostname: $NAME
+users:
+  - name: $VM_USER
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$PWHASH"
+ssh_pwauth: true
+chpasswd:
+  expire: false
+EOF
+
+cat >"$CIDIR/network-config" <<EOF
+version: 2
+ethernets:
+  lan:
+    match:
+      macaddress: "$MAC"
+    set-name: lan
+    addresses: [$IP_CIDR]
+    routes:
+      - to: default
+        via: $GATEWAY
+    nameservers:
+      addresses: [${DNS_SERVERS[0]}, ${DNS_SERVERS[1]}]
+EOF
+
+log "building cloud-init seed.iso"
+cloud-localds --network-config="$CIDIR/network-config" \
+  "$CIDIR/seed.iso" "$CIDIR/user-data" "$CIDIR/meta-data"
+
+UUID="$(uuidgen)"
+cat >"$CIDIR/domain.xml" <<EOF
+<domain type="kvm">
+  <name>$NAME</name>
+  <uuid>$UUID</uuid>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://ubuntu.com/ubuntu/24.04"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory unit="MiB">$MEMORY_MIB</memory>
+  <currentMemory unit="MiB">$MEMORY_MIB</currentMemory>
+  <vcpu>$VCPUS</vcpu>
+  <os firmware="efi">
+    <type arch="x86_64" machine="q35">hvm</type>
+    <boot dev="hd"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <vmport state="off"/>
+  </features>
+  <cpu mode="host-passthrough"/>
+  <clock offset="utc">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+  </clock>
+  <devices>
+    <emulator>/run/libvirt/nix-emulators/qemu-system-x86_64</emulator>
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2"/>
+      <source file="$DISK"/>
+      <target dev="vda" bus="virtio"/>
+    </disk>
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="$SEED"/>
+      <target dev="sda" bus="sata"/>
+      <readonly/>
+    </disk>
+    <controller type="pci" model="pcie-root"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <interface type="network">
+      <source network="$BRIDGE_NET"/>
+      <mac address="$MAC"/>
+      <model type="virtio"/>
+    </interface>
+    <console type="pty"/>
+    <channel type="unix">
+      <source mode="bind"/>
+      <target type="virtio" name="org.qemu.guest_agent.0"/>
+    </channel>
+    <graphics type="spice" port="-1" tlsPort="-1" autoport="yes"/>
+    <video>
+      <model type="virtio"/>
+    </video>
+    <memballoon model="virtio"/>
+    <rng model="virtio">
+      <backend model="random">/dev/urandom</backend>
+    </rng>
+  </devices>
+</domain>
+EOF
+
+log "preparing $VM_DIR on $SSH_HOST"
+remote_sudo mkdir -p "$VM_DIR"
+
+if remote_sudo test -f "$BASE_IMG"; then
+  log "base image already present at $SSH_HOST:$BASE_IMG"
+else
+  log "fetching base image on $SSH_HOST -> $BASE_IMG"
+  remote_sudo curl -fsSL -o "$BASE_IMG" "$BASE_URL"
+fi
+
+log "copying seed.iso + domain.xml to $SSH_HOST:$VM_DIR"
+# seed.iso holds the SHA-512 password hash; keep it off world-readable.
+# libvirt's dynamic ownership will relabel it for qemu on domain start.
+remote_put "$CIDIR/seed.iso" "$SEED" 0600
+remote_put "$CIDIR/domain.xml" "$VM_DIR/domain.xml" 0600
+
+log "creating disk $DISK from base image"
+remote_sudo qemu-img convert -O qcow2 "$BASE_IMG" "$DISK"
+log "resizing disk to $DISK_SIZE"
+remote_sudo qemu-img resize "$DISK" "$DISK_SIZE"
+
+log "defining libvirt domain"
+remote_sudo virsh define "$VM_DIR/domain.xml"
+log "starting domain '$NAME'"
+remote_sudo virsh start "$NAME"
+
+IP_ONLY="${IP_CIDR%/*}"
+TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+BASE_IMG_NAME="$(basename "$BASE_IMG")"
+
+if [ ! -f "$LOG_FILE" ]; then
+  log "creating CSV log at $LOG_FILE"
+  echo "timestamp,host,name,ip,mac,user,password,base_image" >"$LOG_FILE"
+else
+  log "appending provision record to $LOG_FILE"
+fi
+printf '%s,%s,%s,%s,%s,%s,%s,%s\n' \
+  "$TIMESTAMP" "$SSH_HOST" "$NAME" "$IP_ONLY" "$MAC" \
+  "$VM_USER" "$PASSWORD" "$BASE_IMG_NAME" >>"$LOG_FILE"
+
+cat <<EOF
+
+VM provisioned on $SSH_HOST:
+  name:     $NAME
+  ip:       $IP_ONLY
+  mac:      $MAC
+  user:     $VM_USER
+  password: $PASSWORD
+  base:     $BASE_IMG_NAME
+  logged:   $LOG_FILE
+
+  ssh:      ssh $VM_USER@$IP_ONLY   # password: $PASSWORD
+EOF
